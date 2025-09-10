@@ -109,22 +109,21 @@ docker-compose up -d
 
 ## 🚀 CI/CD Pipeline
 
-### GitHub Actions
-The project includes two GitHub Actions workflows:
+The project includes **2 streamlined GitHub Actions workflows**:
 
-#### 1. **Full CI/CD Pipeline** (`.github/workflows/ci.yml`)
-- Runs on push to `main`/`develop` branches and pull requests
-- Sets up MongoDB and RabbitMQ services
-- Builds all microservices
-- Starts services with Docker Compose
-- Runs comprehensive test suite (unit + integration + e2e)
-- Uploads test coverage reports
+### **Quick Tests** (`.github/workflows/quick-tests.yml`)
+- **Triggers**: Every push and pull request
+- **Scope**: Unit tests only
+- **Infrastructure**: GitHub services (MongoDB + RabbitMQ)
+- **Duration**: ~2-3 minutes
+- **Purpose**: Fast feedback for developers
 
-#### 2. **Quick Tests** (`.github/workflows/test-only.yml`)
-- Runs on push to `main` branch and pull requests
-- Fast unit tests only (no Docker services)
-- Tests Payment Service and Transaction Worker (services with working tests)
-- Perfect for quick feedback during development
+### **Full CI/CD Pipeline** (`.github/workflows/ci.yml`)
+- **Triggers**: Main branch pushes and PRs to main
+- **Scope**: Complete integration testing
+- **Infrastructure**: Full Docker Compose setup
+- **Duration**: ~5-8 minutes
+- **Purpose**: Comprehensive validation before merge
 
 ### Local CI/CD Simulation
 ```bash
