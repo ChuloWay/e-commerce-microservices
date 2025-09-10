@@ -1,0 +1,27 @@
+{
+  "name": "ecommerce-seed-scripts",
+  "version": "1.0.0",
+  "description": "Database seeding scripts for e-commerce microservices",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "seed": "npm run build && npm start"
+  },
+  "keywords": [
+    "ecommerce",
+    "seeding",
+    "database"
+  ],
+  "author": "E-commerce Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

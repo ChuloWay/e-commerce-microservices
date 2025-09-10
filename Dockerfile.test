@@ -1,0 +1,48 @@
+# Test Runner Dockerfile
+# This container runs all tests inside Docker without requiring local Node.js installation
+
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json files for dependency installation
+COPY package.json ./
+COPY customer-service/package.json ./customer-service/
+COPY product-service/package.json ./product-service/
+COPY order-service/package.json ./order-service/
+COPY payment-service/package.json ./payment-service/
+COPY transaction-worker/package.json ./transaction-worker/
+COPY integration-tests/package.json ./integration-tests/
+COPY scripts/package.json ./scripts/
+
+# Install root dependencies
+RUN npm install
+
+# Install dependencies for each service (only for test runner)
+RUN cd customer-service && npm install
+RUN cd product-service && npm install
+RUN cd order-service && npm install
+RUN cd payment-service && npm install
+RUN cd transaction-worker && npm install
+RUN cd integration-tests && npm install
+RUN cd scripts && npm install
+
+# Copy all source code
+COPY . .
+
+# Build all services
+RUN cd customer-service && npm run build
+RUN cd product-service && npm run build
+RUN cd order-service && npm run build
+RUN cd payment-service && npm run build
+RUN cd transaction-worker && npm run build
+
+# Set environment variables
+ENV NODE_ENV=test
+
+# Expose ports (for health checks)
+EXPOSE 3001 3002 3003 3004
+
+# Default command runs all tests
+CMD ["node", "test-runner.js"]

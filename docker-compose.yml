@@ -1,0 +1,226 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: ecommerce-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: ecommerce
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - ecommerce-network
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: ecommerce-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password123
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Customer Service
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: ecommerce-customer-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/ecommerce_customers?authSource=admin
+      SERVICE_NAME: customer-service
+      LOG_LEVEL: info
+      CORS_ORIGIN: http://localhost:3000
+    depends_on:
+      - mongodb
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./shared:/app/shared:ro
+
+  # Product Service
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: ecommerce-product-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/ecommerce_products?authSource=admin
+      SERVICE_NAME: product-service
+      LOG_LEVEL: info
+      CORS_ORIGIN: http://localhost:3000
+    depends_on:
+      - mongodb
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./shared:/app/shared:ro
+
+  # Order Service
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: ecommerce-order-service
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/ecommerce_orders?authSource=admin
+      SERVICE_NAME: order-service
+      LOG_LEVEL: info
+      CORS_ORIGIN: http://localhost:3000
+      CUSTOMER_SERVICE_URL: http://customer-service:3001
+      PRODUCT_SERVICE_URL: http://product-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3004
+    depends_on:
+      - mongodb
+      - customer-service
+      - product-service
+      - payment-service
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./shared:/app/shared:ro
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: ecommerce-payment-service
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/ecommerce_payments?authSource=admin
+      RABBITMQ_URL: amqp://admin:password123@rabbitmq:5672
+      SERVICE_NAME: payment-service
+      LOG_LEVEL: info
+      CORS_ORIGIN: http://localhost:3000
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./shared:/app/shared:ro
+
+  # Transaction Worker
+  transaction-worker:
+    build:
+      context: ./transaction-worker
+      dockerfile: Dockerfile
+    container_name: ecommerce-transaction-worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/ecommerce_transactions?authSource=admin
+      RABBITMQ_URL: amqp://admin:password123@rabbitmq:5672
+      SERVICE_NAME: transaction-worker
+      LOG_LEVEL: info
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./shared:/app/shared:ro
+
+  # Database Seeding Service (runs once)
+  seed-databases:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile
+    container_name: ecommerce-seed-databases
+    environment:
+      MONGO_URI: mongodb://admin:password123@mongodb:27017?authSource=admin
+      CUSTOMER_SERVICE_URL: http://customer-service:3001
+      PRODUCT_SERVICE_URL: http://product-service:3002
+    depends_on:
+      - mongodb
+      - customer-service
+      - product-service
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./shared:/app/shared:ro
+    profiles:
+      - seeding
+
+  # Test Runner Service
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: ecommerce-test-runner
+    environment:
+      NODE_ENV: test
+      MONGO_URI: mongodb://admin:password123@mongodb:27017?authSource=admin
+      RABBITMQ_URL: amqp://admin:password123@rabbitmq:5672
+      CUSTOMER_SERVICE_URL: http://customer-service:3001
+      PRODUCT_SERVICE_URL: http://product-service:3002
+      ORDER_SERVICE_URL: http://order-service:3003
+      PAYMENT_SERVICE_URL: http://payment-service:3004
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - customer-service
+      - product-service
+      - order-service
+      - payment-service
+      - transaction-worker
+    networks:
+      - ecommerce-network
+    profiles:
+      - test
+
+volumes:
+  mongodb_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
