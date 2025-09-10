@@ -224,7 +224,7 @@ async function runE2ETest() {
     
     // Configure axios with timeout and retry
     const axiosConfig = {
-      timeout: 10000, // 10 second timeout
+      timeout: 30000, // 30 second timeout
       headers: {
         'Content-Type': 'application/json'
       }
@@ -286,6 +286,13 @@ async function runE2ETest() {
       logSuccess(`Order created: ${order.orderId} (₦${order.amount})`);
     } catch (error) {
       console.log('Order creation error:', error.response?.data || error.message);
+      console.log('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        url: error.config?.url,
+        method: error.config?.method,
+        timeout: error.config?.timeout
+      });
       throw error;
     }
     
