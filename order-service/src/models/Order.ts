@@ -72,7 +72,6 @@ const orderSchema = new Schema<OrderDocument>({
 });
 
 // Indexes for better query performance
-orderSchema.index({ orderId: 1 });
 orderSchema.index({ customerId: 1 });
 orderSchema.index({ productId: 1 });
 orderSchema.index({ orderStatus: 1 });

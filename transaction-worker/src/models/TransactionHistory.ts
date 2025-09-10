@@ -49,7 +49,6 @@ const transactionHistorySchema = new Schema<TransactionHistoryDocument>({
 });
 
 // Indexes for better query performance
-transactionHistorySchema.index({ transactionId: 1 });
 transactionHistorySchema.index({ customerId: 1 });
 transactionHistorySchema.index({ orderId: 1 });
 transactionHistorySchema.index({ productId: 1 });

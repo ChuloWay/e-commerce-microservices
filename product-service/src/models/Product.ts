@@ -77,7 +77,6 @@ const productSchema = new Schema<ProductDocument>({
 });
 
 // Indexes for better query performance
-productSchema.index({ productId: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ isActive: 1 });
 productSchema.index({ price: 1 });

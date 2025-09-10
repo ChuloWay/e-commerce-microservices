@@ -71,7 +71,6 @@ const customerSchema = new Schema<CustomerDocument>({
 });
 
 // Indexes for better query performance
-customerSchema.index({ email: 1 });
 customerSchema.index({ customerId: 1 });
 customerSchema.index({ isActive: 1 });
 

@@ -10,6 +10,28 @@ jobs:
   quick-test:
     runs-on: ubuntu-latest
     
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      rabbitmq:
+        image: rabbitmq:3.12-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -34,3 +56,6 @@ jobs:
       run: |
         cd payment-service && npm test
         cd ../transaction-worker && npm test
+      env:
+        MONGO_URI: mongodb://localhost:27017/ecommerce_payments_test
+        RABBITMQ_URL: amqp://localhost:5672

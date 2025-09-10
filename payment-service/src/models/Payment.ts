@@ -60,13 +60,11 @@ const paymentSchema = new Schema<PaymentDocument>({
 });
 
 // Indexes for better query performance
-paymentSchema.index({ paymentId: 1 });
 paymentSchema.index({ customerId: 1 });
 paymentSchema.index({ orderId: 1 });
 paymentSchema.index({ productId: 1 });
 paymentSchema.index({ paymentStatus: 1 });
 paymentSchema.index({ paymentDate: -1 });
-paymentSchema.index({ transactionId: 1 });
 
 // Pre-save middleware to generate paymentId if not provided
 paymentSchema.pre('save', function(next) {
