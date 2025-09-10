@@ -506,7 +506,7 @@ npm run test:docker
 
 ### **Manual Testing with cURL**
 
-#### **1. Create a Nigerian Customer**
+#### **1. Create a Customer**
 ```bash
 curl -X POST http://localhost:3001/api/customers \
   -H "Content-Type: application/json" \
@@ -524,7 +524,7 @@ curl -X POST http://localhost:3001/api/customers \
   }'
 ```
 
-#### **2. Create a Nigerian Product**
+#### **2. Create a Product**
 ```bash
 curl -X POST http://localhost:3002/api/products \
   -H "Content-Type: application/json" \
@@ -630,24 +630,6 @@ docker-compose logs -f order-service
 docker-compose logs -f payment-service
 docker-compose logs -f transaction-worker
 ```
-
-## 🚀 CI/CD Pipeline
-
-The project includes **2 streamlined GitHub Actions workflows**:
-
-### **Quick Tests** (`.github/workflows/quick-tests.yml`)
-- **Triggers**: Every push and pull request
-- **Scope**: Unit tests only
-- **Infrastructure**: GitHub services (MongoDB + RabbitMQ)
-- **Duration**: ~2-3 minutes
-- **Purpose**: Fast feedback for developers
-
-### **Full CI/CD Pipeline** (`.github/workflows/ci.yml`)
-- **Triggers**: Main branch pushes and PRs to main
-- **Scope**: Complete integration testing
-- **Infrastructure**: Full Docker Compose setup
-- **Duration**: ~5-8 minutes
-- **Purpose**: Comprehensive validation before merge
 
 ## 📚 Additional Resources
 
