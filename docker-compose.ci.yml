@@ -46,7 +46,7 @@ services:
     networks:
       - ecommerce-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -70,7 +70,7 @@ services:
     networks:
       - ecommerce-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -99,11 +99,11 @@ services:
       product-service:
         condition: service_healthy
       payment-service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - ecommerce-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3003/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -130,7 +130,7 @@ services:
     networks:
       - ecommerce-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3004/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 10s
       timeout: 5s
       retries: 5
