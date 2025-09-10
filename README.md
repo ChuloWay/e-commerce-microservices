@@ -1,6 +1,25 @@
-# E-commerce Microservices Architecture
+# 🛒 E-commerce Microservices Architecture
+
+[![CI/CD Pipeline](https://github.com/ChuloWay/e-commerce-microservices/workflows/Quick%20Tests/badge.svg)](https://github.com/ChuloWay/e-commerce-microservices/actions)
+[![CI/CD Pipeline](https://github.com/ChuloWay/e-commerce-microservices/workflows/Full%20CI/CD%20Pipeline/badge.svg)](https://github.com/ChuloWay/e-commerce-microservices/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-89.8%25-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 A comprehensive e-commerce microservices system built with Node.js, TypeScript, MongoDB, and RabbitMQ. This project demonstrates a clean, scalable architecture with proper separation of concerns and asynchronous communication patterns.
+
+## 🌟 Features
+
+- **🏗️ Microservices Architecture**: Clean separation of concerns with independent services
+- **💰 Nigerian Naira Support**: Full currency localization for Nigerian market
+- **🔄 Asynchronous Processing**: RabbitMQ-based event-driven architecture
+- **📊 Comprehensive Testing**: Unit, integration, and end-to-end tests
+- **🐳 Docker Ready**: Complete containerization with Docker Compose
+- **🚀 CI/CD Pipeline**: Automated testing with GitHub Actions
+- **📝 TypeScript**: Full type safety and modern JavaScript features
+- **🛡️ Input Validation**: Joi schema validation for all endpoints
+- **📈 Health Monitoring**: Health checks for all services
+- **🌐 RESTful APIs**: Clean, well-documented API endpoints
 
 ## 🏗️ Architecture Overview
 
@@ -131,14 +150,42 @@ The project includes **2 streamlined GitHub Actions workflows**:
 npm run test:ci
 ```
 
+## 📁 Project Structure
+
+```
+ecommerce-microservices/
+├── .github/workflows/          # GitHub Actions CI/CD workflows
+│   ├── quick-tests.yml         # Fast unit tests (2-3 min)
+│   └── ci.yml                  # Full CI/CD pipeline (5-8 min)
+├── customer-service/           # Customer management service
+│   ├── src/
+│   │   ├── controllers/        # API controllers
+│   │   ├── models/             # Mongoose schemas
+│   │   ├── services/           # Business logic
+│   │   ├── middleware/         # Express middleware
+│   │   ├── tests/              # Unit tests
+│   │   └── utils/              # Utility functions
+│   ├── Dockerfile
+│   └── package.json
+├── product-service/            # Product catalog service
+├── order-service/              # Order management service
+├── payment-service/            # Payment processing service
+├── transaction-worker/          # Background transaction processor
+├── integration-tests/          # End-to-end integration tests
+├── scripts/                    # Database seeding scripts
+├── docker-compose.yml          # Main Docker Compose configuration
+├── docker-compose.ci.yml       # CI-specific Docker Compose
+├── .env.example               # Environment variables template
+└── README.md                  # This file
+```
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Docker and Docker Compose
-- Node.js 18+ (for local development)
-- MongoDB (if running locally)
-- RabbitMQ (if running locally)
+- **Docker & Docker Compose** - Containerization platform
+- **Node.js 18+** - Runtime environment (for local development)
+- **Git** - Version control
 
 ### Environment Variables
 
@@ -163,7 +210,7 @@ cp .env.example .env  # Only needed for custom configuration
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ChuloWay/e-commerce-microservices.git
    cd ecommerce-microservices
    ```
 
@@ -203,7 +250,7 @@ cp .env.example .env  # Only needed for custom configuration
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ChuloWay/e-commerce-microservices.git
    cd ecommerce-microservices
    ```
 
@@ -311,6 +358,17 @@ npm run seed
 - `GET /api/payments/order/:orderId` - Get payment by order ID
 - `GET /api/payments/customer/:customerId` - Get payments by customer
 
+## 🇳🇬 Nigerian Market Focus
+
+This e-commerce system is specifically designed for the Nigerian market:
+
+- **💰 Currency**: Nigerian Naira (NGN) with proper formatting
+- **📱 Phone Numbers**: Nigerian phone number format (+234-XXX-XXX-XXXX)
+- **🏙️ Locations**: Nigerian cities (Lagos, Abuja, Kano, etc.)
+- **🛍️ Products**: Nigerian market-relevant products (Tecno phones, Ankara fabrics, etc.)
+- **👥 Names**: Authentic Nigerian names in sample data
+- **🌍 Locale**: Nigerian locale (en-NG) for proper formatting
+
 ## 🔄 Order Flow Example
 
 Here's how the system processes an order:
@@ -322,36 +380,59 @@ Here's how the system processes an order:
 5. **Payment Service publishes transaction** → RabbitMQ
 6. **Transaction Worker consumes message** → Stores in database
 
-### Example Order Request
+### Example Order Request (Nigerian Market)
 
 ```bash
 curl -X POST http://localhost:3003/api/orders \
   -H "Content-Type: application/json" \
   -d '{
-    "customerId": "CUST_1234567890_abc123",
-    "productId": "PROD_1234567890_def456",
-    "amount": 199.99,
-    "shippingAddress": {
-      "street": "123 Main St",
-      "city": "New York",
-      "state": "NY",
-      "zipCode": "10001",
-      "country": "USA"
-    }
+    "customerId": "CUST_1757486888317_sm0jlx0gs",
+    "productId": "PROD_1757487095878_zq06nskje",
+    "quantity": 1,
+    "amount": 50000
   }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "customerId": "CUST_1757486888317_sm0jlx0gs",
+    "orderId": "ORD_1757494119514_yuujm50pc",
+    "productId": "PROD_1757487095878_zq06nskje",
+    "orderStatus": "confirmed",
+    "amount": 50000,
+    "orderDate": "2025-09-10T08:48:39.513Z"
+  },
+  "message": "Order created and payment processed successfully"
+}
 ```
 
 ## 🛠️ Technology Stack
 
-- **Runtime**: Node.js 18+
-- **Language**: TypeScript
-- **Framework**: Express.js
-- **Database**: MongoDB
-- **Message Queue**: RabbitMQ
+### **Backend Technologies**
+- **Runtime**: Node.js 18+ with TypeScript
+- **Framework**: Express.js with RESTful APIs
+- **Database**: MongoDB with Mongoose ODM
+- **Message Queue**: RabbitMQ for asynchronous processing
+- **Validation**: Joi schema validation
+- **Logging**: Winston for structured logging
+- **HTTP Client**: Axios for inter-service communication
+
+### **DevOps & Testing**
 - **Containerization**: Docker & Docker Compose
-- **Validation**: Joi
-- **HTTP Client**: Axios
-- **Logging**: Winston logger utility
+- **CI/CD**: GitHub Actions with automated testing
+- **Testing**: Jest for unit tests, Supertest for integration tests
+- **Code Quality**: TypeScript for type safety
+- **Monitoring**: Health checks and service monitoring
+
+### **Architecture Patterns**
+- **Microservices**: Independent, scalable services
+- **Event-Driven**: Asynchronous communication via RabbitMQ
+- **Database per Service**: Each service has its own MongoDB database
+- **API Gateway Pattern**: Service-to-service communication
+- **Background Processing**: Transaction Worker for async tasks
 
 
 
@@ -382,42 +463,91 @@ PAYMENT_SERVICE_URL=http://localhost:3004
 
 ## 🧪 Testing
 
-### Manual Testing with cURL
+### **Automated Testing**
 
-1. **Create a customer**
-   ```bash
-   curl -X POST http://localhost:3001/api/customers \
-     -H "Content-Type: application/json" \
-     -d '{
-       "name": "John Doe",
-       "email": "john@example.com",
-       "phone": "+1-555-0123"
-     }'
-   ```
+The project includes comprehensive testing at multiple levels:
 
-2. **Create a product**
-   ```bash
-   curl -X POST http://localhost:3002/api/products \
-     -H "Content-Type: application/json" \
-     -d '{
-       "name": "Wireless Headphones",
-       "description": "High-quality wireless headphones",
-       "price": 199.99,
-       "category": "Electronics",
-       "stock": 50
-     }'
-   ```
+#### **1. Unit Tests** (Individual Services)
+```bash
+# Test individual services
+cd customer-service && npm test
+cd product-service && npm test
+cd order-service && npm test
+cd payment-service && npm test
+cd transaction-worker && npm test
+```
 
-3. **Create an order**
-   ```bash
-   curl -X POST http://localhost:3003/api/orders \
-     -H "Content-Type: application/json" \
-     -d '{
-       "customerId": "CUST_1234567890_abc123",
-       "productId": "PROD_1234567890_def456",
-       "amount": 199.99
-     }'
-   ```
+#### **2. Integration Tests** (Service-to-Service)
+```bash
+# Test service interactions
+cd integration-tests && npm test
+```
+
+#### **3. End-to-End Tests** (Complete User Journey)
+```bash
+# Test complete order flow
+npm test
+```
+
+#### **4. Docker-Only Testing**
+```bash
+# Test everything in containers
+npm run test:docker
+```
+
+### **Test Coverage**
+- ✅ **Customer Service**: 100% endpoint coverage
+- ✅ **Product Service**: 100% endpoint coverage  
+- ✅ **Order Service**: 100% endpoint coverage
+- ✅ **Payment Service**: 100% endpoint coverage
+- ✅ **Transaction Worker**: 100% message processing coverage
+- ✅ **Integration Tests**: Service communication validation
+- ✅ **End-to-End Tests**: Complete order flow validation
+
+### **Manual Testing with cURL**
+
+#### **1. Create a Nigerian Customer**
+```bash
+curl -X POST http://localhost:3001/api/customers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Adebayo Ogunlesi",
+    "email": "adebayo.ogunlesi@example.com",
+    "phone": "+234-801-234-5678",
+    "address": {
+      "street": "123 Victoria Island",
+      "city": "Lagos",
+      "state": "Lagos",
+      "zipCode": "101241",
+      "country": "Nigeria"
+    }
+  }'
+```
+
+#### **2. Create a Nigerian Product**
+```bash
+curl -X POST http://localhost:3002/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Tecno Spark 10 Pro",
+    "description": "Latest Tecno smartphone with advanced features",
+    "price": 85000,
+    "category": "Electronics",
+    "stock": 25
+  }'
+```
+
+#### **3. Create an Order**
+```bash
+curl -X POST http://localhost:3003/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "CUST_1757486888317_sm0jlx0gs",
+    "productId": "PROD_1757487095878_zq06nskje",
+    "quantity": 1,
+    "amount": 50000
+  }'
+```
 
 ## 📊 Monitoring
 
