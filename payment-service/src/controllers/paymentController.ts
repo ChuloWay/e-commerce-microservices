@@ -302,7 +302,7 @@ const simulatePaymentProcessing = async (payment: any): Promise<{ success: boole
     // Simulate different failure reasons based on amount
     let errorMessage = 'Payment gateway declined the transaction';
     
-    if (payment.amount > 1000) {
+    if (payment.amount > 100000000) {
       errorMessage = 'Transaction amount exceeds limit';
     } else if (payment.amount < 1) {
       errorMessage = 'Minimum transaction amount not met';
