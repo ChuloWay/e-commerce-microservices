@@ -502,6 +502,26 @@ docker-compose logs -f payment-service
 docker-compose logs -f transaction-worker
 ```
 
+## 🚀 CI/CD Pipeline
+
+The project includes GitHub Actions workflows for automated testing:
+
+### **Unit Tests Workflow** (`.github/workflows/unit-tests.yml`)
+- Runs on every push and pull request
+- Tests each service individually with MongoDB and RabbitMQ services
+- Fast execution, runs in parallel
+- No Docker Compose required
+
+### **Full CI/CD Pipeline** (`.github/workflows/ci.yml`)
+- Runs on main branch pushes and pull requests
+- Full Docker Compose setup with all services
+- End-to-end integration testing
+- Database seeding and comprehensive testing
+
+### **Quick Tests** (`.github/workflows/test-only.yml`)
+- Lightweight workflow for quick validation
+- Unit tests only for Payment Service and Transaction Worker
+
 ## 📚 Additional Resources
 
 - [MongoDB Documentation](https://docs.mongodb.com/)

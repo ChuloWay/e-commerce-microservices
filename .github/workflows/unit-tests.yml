@@ -1,0 +1,104 @@
+name: Unit Tests Only
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      rabbitmq:
+        image: rabbitmq:3.12-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm install
+        cd customer-service && npm install
+        cd ../product-service && npm install
+        cd ../order-service && npm install
+        cd ../payment-service && npm install
+        cd ../transaction-worker && npm install
+        cd ../scripts && npm install
+        cd ../integration-tests && npm install
+
+    - name: Build services
+      run: |
+        cd customer-service && npm run build
+        cd ../product-service && npm run build
+        cd ../order-service && npm run build
+        cd ../payment-service && npm run build
+        cd ../transaction-worker && npm run build
+
+    - name: Run Customer Service tests
+      run: cd customer-service && npm test
+      env:
+        MONGO_URI: mongodb://localhost:27017/ecommerce_customers_test
+
+    - name: Run Product Service tests
+      run: cd product-service && npm test
+      env:
+        MONGO_URI: mongodb://localhost:27017/ecommerce_products_test
+
+    - name: Run Order Service tests
+      run: cd order-service && npm test
+      env:
+        MONGO_URI: mongodb://localhost:27017/ecommerce_orders_test
+        CUSTOMER_SERVICE_URL: http://localhost:3001
+        PRODUCT_SERVICE_URL: http://localhost:3002
+        PAYMENT_SERVICE_URL: http://localhost:3004
+
+    - name: Run Payment Service tests
+      run: cd payment-service && npm test
+      env:
+        MONGO_URI: mongodb://localhost:27017/ecommerce_payments_test
+        RABBITMQ_URL: amqp://localhost:5672
+
+    - name: Run Transaction Worker tests
+      run: cd transaction-worker && npm test
+      env:
+        MONGO_URI: mongodb://localhost:27017/ecommerce_transactions_test
+        RABBITMQ_URL: amqp://localhost:5672
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: unit-test-results
+        path: |
+          customer-service/coverage/
+          product-service/coverage/
+          order-service/coverage/
+          payment-service/coverage/
+          transaction-worker/coverage/
